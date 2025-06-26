@@ -1,9 +1,11 @@
 {
-  "name": "backend",
+  "name": "vercel-api",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+     "dev": "vercel dev"
+  
   },
   "keywords": [],
   "author": "",
