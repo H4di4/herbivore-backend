@@ -7,7 +7,7 @@ const upload = require('../config/multer')
 
 // GET /api/user/profile
 router.get('/profile', authMiddleware, async (req, res) => {
- 
+
   try {
     const user = await User.findById(req.user.id)
       .select('-password')
@@ -20,6 +20,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
       bio: user.bio,
       profilePicture: user.profilePicture,
       savedPosts: user.savedPosts,
+      isAdmin: user.isAdmin, 
     });
   } catch (err) {
     console.error('Profile fetch error:', err);
@@ -58,6 +59,7 @@ router.put(
           email: updatedUser.email,
           bio: updatedUser.bio,
           profilePicture: updatedUser.profilePicture,
+           isAdmin: updatedUser.isAdmin,
         },
       });
     } catch (err) {

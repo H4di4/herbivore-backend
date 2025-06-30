@@ -65,6 +65,7 @@ router.delete('/clear', async (req, res) => {
     await CartItem.deleteMany({});
     res.json({ message: 'Cart cleared successfully' });
   } catch (error) {
+     console.error('Error clearing cart:', err);
     res.status(500).json({ error: 'Failed to clear cart' });
   }
 });

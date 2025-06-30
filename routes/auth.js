@@ -14,16 +14,16 @@ router.post('/admin/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    if (email !== ADMIN_EMAIL) {
+    if (email !== process.env.ADMIN_EMAIL) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    const isMatch = await bcrypt.compare(password, ADMIN_PASSWORD);
+    const isMatch = await bcrypt.compare(password, process.env.ADMIN_PASSWORD);
     if (!isMatch) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: '2h' });
+    const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '2h' });
 
     res.json({ token });
   } catch (err) {
@@ -34,7 +34,7 @@ router.post('/admin/login', async (req, res) => {
 
 // POST /api/auth/user/register
 router.post('/register', async (req, res) => {
-  const {firstName , lastName, email, password, role } = req.body;  
+  const { firstName, lastName, email, password, role } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -45,11 +45,11 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
-       firstName,
+      firstName,
       lastName,
       email,
       password: hashedPassword,
-      role: role || 'user'  
+      role: role || 'user'
     });
 
     await newUser.save();
@@ -64,30 +64,40 @@ router.post('/register', async (req, res) => {
 
 
 router.post('/login', async (req, res) => {
+  console.log('Login attempt:', req.body); // Add this line
   const { email, password } = req.body;
 
   try {
-    
+
     const user = await User.findOne({ email });
-    console.log('User found:', user);
+
     if (!user) {
       return res.status(400).json({ msg: 'Invalid email or password' });
     }
 
-    
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ msg: 'Invalid email or password' });
     }
 
-   
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '2h' }
     );
 
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName
+      }
+    });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ msg: 'Server error' });
